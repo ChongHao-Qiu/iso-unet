@@ -193,13 +193,13 @@ This builds a model with **129,841,853** parameters. `landfrac_idx`, `pr_channel
 Each ablation removes one component from the full model and leaves every other setting
 unchanged, so the difference in RMSE is attributable to that component.
 
-| Row in paper | Config | Params |
+| Row in paper | Config |
 |---|---|---|
-| **Full (Ours)** | `configs/iso_unet_4way_ice_full_split.yaml` | 129,841,853 |
-| L1 − GroupConv | `configs/loo_L1_no_stem.yaml` | 129,879,961 |
-| L2 − ClimateState | `configs/loo_L2_no_context.yaml` | 129,663,921 |
-| L3 − Bottleneck | `configs/loo_L3_no_moe.yaml` | 34,665,189 |
-| L4 − SkipConnection | `configs/loo_L4_no_skip_attn.yaml` | 125,919,173 |
+| **Full (Ours)** | `configs/iso_unet_4way_ice_full_split.yaml` | 
+| L1 − GroupConv | `configs/loo_L1_no_stem.yaml` | 
+| L2 − ClimateState | `configs/loo_L2_no_context.yaml` |
+| L3 − Bottleneck | `configs/loo_L3_no_moe.yaml` |
+| L4 − SkipConnection | `configs/loo_L4_no_skip_attn.yaml` |
 
 
 ## Computational cost
