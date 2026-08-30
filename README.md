@@ -194,7 +194,7 @@ Each ablation removes one component from the full model and leaves every other s
 unchanged, so the difference in RMSE is attributable to that component.
 
 | Row in paper | Config |
-|---|---|---|
+|---|---|
 | **Full (Ours)** | `configs/iso_unet_4way_ice_full_split.yaml` | 
 | L1 − GroupConv | `configs/loo_L1_no_stem.yaml` | 
 | L2 − ClimateState | `configs/loo_L2_no_context.yaml` |
