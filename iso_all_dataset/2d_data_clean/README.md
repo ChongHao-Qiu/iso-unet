@@ -8,7 +8,7 @@ and the ablation study; this file documents the pipeline's internals.
 
 ```
 2d_data_clean/
-├── configs/                  ← one YAML per model (32 total)
+├── configs/                  ← one YAML per model (31 total)
 │   ├── unet2d_vanilla_full_split.yaml     U-Net single-frame baseline
 │   ├── unetpp_full_split.yaml             U-Net++ (base=64)
 │   ├── fno2d_full_split.yaml              FNO2D single-frame baseline
@@ -16,7 +16,7 @@ and the ablation study; this file documents the pipeline's internals.
 │   ├── canet_full_split.yaml              CA-Net (4 attention modules)
 │   ├── convlstm_full_split.yaml           ConvLSTM (12-frame sequence)
 │   ├── iso_unet_4way_ice_full_split.yaml  ★ ISO-UNet (ours) — the paper's Full model
-│   ├── loo_L{1..5}_*.yaml                 leave-one-out ablations of the Full model
+│   ├── loo_L{1..4}_*.yaml                 leave-one-out ablations of the Full model
 │   └── ...                                remaining baselines
 │
 ├── data.py        ← REGISTRY + load_xr + normalize_inputs (shared by single-frame / sequence)
