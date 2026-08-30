@@ -201,19 +201,6 @@ unchanged, so the difference in RMSE is attributable to that component.
 | L3 − Bottleneck | `configs/loo_L3_no_moe.yaml` | 34,665,189 |
 | L4 − SkipConnection | `configs/loo_L4_no_skip_attn.yaml` | 125,919,173 |
 
-Results are the mean ± std over seeds 40, 42 and 44:
-
-```bash
-for CFG in iso_unet_4way_ice_full_split loo_L1_no_stem loo_L2_no_context \
-           loo_L3_no_moe loo_L4_no_skip_attn; do
-  for SEED in 40 42 44; do
-    python train.py --config configs/${CFG}.yaml --seed ${SEED} \
-                    --save_base ./experiments_ablation
-  done
-done
-
-for CKPT in ./experiments_ablation/*/*/model.pt; do python eval.py --ckpt "$CKPT"; done
-```
 
 ## Computational cost
 
