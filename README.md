@@ -1,10 +1,14 @@
 # ISO-UNet
+This repository is the official implementation of ISO-UNet: A Climate-State Conditioned Regional Expert Network for Water Isotope Field Regression submitted to ICDM-2026
+
+
+
+
+
 
 <p align="center">
   <img src="img/model.png" alt="ISO-UNet architecture" width="900">
 </p>
-
-Region-aware U-Net for predicting precipitation oxygen isotopes (δ¹⁸O_p) from climate fields, with explicit land/ocean × wet/dry routing, sea-ice expert, and climate-state conditioning.
 
 ## Overview
 
