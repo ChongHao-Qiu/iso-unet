@@ -1,0 +1,40 @@
+# Regional UNet — 4-way + ice + soft_boost input mask
+# mask_mode='soft_boost' uses `1 + γ·m` as multiplier:
+#   - ocean pixel (lf=0): multiplier=1, feat unchanged → expert keeps ocean context
+#   - land pixel (lf=1): multiplier=(1+γ), feat is boosted → expert "pays more attention" to its own region
+# Fundamental difference from hard/soft: ocean pixels are not zeroed out, no information loss.
+#
+# γ (mask_gamma) default 0.5 → land pixels boosted by 50%
+model_name:   iso_unet_4way_ice_full_split
+model_class:  iso_unet.baseline_iso_unet.IsoUNetBaseline
+dataset_kind: sequence
+input_set:    full_split
+seq_len:      12
+batch_size:   4
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  landfrac_idx:           7
+  base_channels:          64
+  d_state:                64
+  H:                      90
+  W:                      180
+  stem_k:                 4
+  use_disentangled_stem:  true
+  use_temporal_context:   true
+  use_bottleneck_moe:     true
+  use_skip_attn:          true
+  skip_attn_levels:       [1, 2, 3, 4]
+  use_precip_routing:     true
+  moe_mode:               product4
+  use_ice_routing:        true
+  mask_mode:              soft_boost     # ★ new mode
+  mask_gamma:             0.5            # γ ≥ 0; recommended 0.5; 0 = equivalent to 'none'
+  lambda_prompt:          0.1
+  lambda_prompt_final:    0.0
+  lambda_decay_epochs:    50
+  prompt_tau:             0.5

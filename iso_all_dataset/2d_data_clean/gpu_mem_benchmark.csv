@@ -1,0 +1,3 @@
+config,model_class,dataset_kind,n_params_M,batch_size,seq_len,peak_alloc_GB,peak_reserved_GB,wall_time_s,n_epochs,n_steps_per_epoch
+climax_full_split,ClimaXBaseline,sequence,8.08148,4,12,3.5070838928222656,4.216796875,15.995143745094538,5,10
+stormer_full_split,StormerBaseline,sequence,5.364505,4,12,0.45899057388305664,0.568359375,1.5795671315863729,5,10

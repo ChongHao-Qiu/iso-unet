@@ -1,0 +1,46 @@
+# Regional UNet — 12-day "naive embedding" ablation (compared to iso_unet_full_split)
+#
+# Experiment goal: demonstrate that "directly concatenate 12 frames and feed to UNet" is inferior
+# to the decoupled design of "x_last → UNet + x_context → climate_state → FiLM".
+#
+# Key differences from iso_unet_full_split.yaml:
+#     input_mode: 'concat_all'    ← concatenate 12 frames along channel dim as UNet input (12 × 9 = 108 ch)
+#     climate_encoder / FiLM       ← forced off (since context is already fed into the UNet)
+#
+# Parts kept identical (for fair comparison with iso_unet_full_split):
+#     - 4-level UNet backbone, base_channels=64
+#     - DisentangledStem (but stem now sees 108 ch instead of 9 ch)
+#     - Bottleneck Land/Ocean MoE (uses LANDFRAC from last frame)
+#     - Skip attention at e3/e4 (uses LANDFRAC from last frame)
+#     - Training data / split / lr / batch_size all identical
+model_name:   iso_unet_12day_full_split
+model_class:  iso_unet.baseline_iso_unet.IsoUNetBaseline
+dataset_kind: sequence            # still needs 12 frames, only differs in how the model uses them internally
+input_set:    full_split
+seq_len:      12
+batch_size:   4
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  landfrac_idx:           7
+  base_channels:          64
+  d_state:                64
+  H:                      90
+  W:                      180
+  stem_k:                 4
+  use_disentangled_stem:  true
+  use_temporal_context:   true     # this flag is automatically overridden to false in concat_all mode
+  use_bottleneck_moe:     true
+  use_skip_attn:          true
+  skip_attn_levels:       [3, 4]
+  use_precip_routing:     false
+  # ── 12-day experiment key switches ──
+  input_mode:             concat_all     # ★ 'last_only' (default) | 'concat_all' (this experiment)
+  T:                      12             # ★ required for concat_all, must match seq_len
+  # Prompt loss: in concat_all mode climate_state ≡ 0, so disable prompt loss
+  lambda_prompt:          0.0
+  lambda_prompt_final:    0.0

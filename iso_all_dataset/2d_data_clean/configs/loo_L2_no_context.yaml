@@ -1,0 +1,46 @@
+# ══════════════════════════════════════════════════════════════════════════
+#  Leave-one-out ablation L2: - ClimateState (climate-state encoder)
+#
+#  Identical to configs/iso_unet_4way_ice_full_split.yaml (the Full model)
+#  except for the single flag marked ★ below. Everything else — base_channels,
+#  d_state, batch_size, lr and the training schedule — is unchanged, so any
+#  difference in RMSE is attributable to the removed component.
+#
+#  Run-level settings (data split, ood_preset, normalization, lat weighting) are
+#  left to the CLI / train.py defaults, exactly as in the other configs.
+#
+#  Removes the climate-state encoder and every consumer of it: the bottleneck FiLM
+#  modulation, the climate-state expert-offset MLPs, and the prompt-alignment loss
+#  (which is defined on the climate-state embedding, hence lambda_prompt is dropped).
+# ══════════════════════════════════════════════════════════════════════════
+model_name:   loo_L2_no_context
+model_class:  iso_unet.baseline_iso_unet.IsoUNetBaseline
+dataset_kind: sequence
+input_set:    full_split          # 9 ch: [tas, precl, precc, PS, TMQ, QFLX, FLUT, LANDFRAC, aice]
+seq_len:      12
+batch_size:   4
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  landfrac_idx:           7
+  base_channels:          64
+  d_state:                64
+  H:                      90
+  W:                      180
+  stem_k:                 4
+  use_disentangled_stem:  true
+  use_temporal_context:   false   # ★ ABLATED
+  use_bottleneck_moe:     true
+  use_skip_attn:          true
+  skip_attn_levels:       [1, 2, 3, 4]
+  # ── 4-way product routing ──
+  use_precip_routing:     true
+  pr_channels:            [1, 2]   # precl, precc
+  moe_mode:               product4
+  # ── Sea-ice expert ──
+  use_ice_routing:        true
+  ice_idx:                8       # aice channel

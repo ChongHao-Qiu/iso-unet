@@ -1,0 +1,24 @@
+# UNet++ (nested dense skip) + full_split — 4-level, base=64
+# Architecture: Zhou et al. 2018, BN+ReLU blocks (same as vanilla, no dropout)
+# base_channels=64 matches the vanilla U-Net baseline width, so the two U-Net
+# variants are compared at the same capacity.
+model_name:   unetpp_full_split
+model_class:  iso_unet.baseline_unetpp.UNetPlusPlusBaseline
+dataset_kind: single_frame
+input_set:    full_split        # 9 ch
+seq_len:      12
+batch_size:   8
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  base_channels:    64
+  out_channels:     1
+  H:                90
+  W:                180
+  depth:            4
+  max_channels:     512
+  deep_supervision: false

@@ -1,0 +1,37 @@
+# ClimaX (Microsoft 2023, https://arxiv.org/abs/2301.10343) + full_split.
+# Variable-tokenized ViT: each input variable gets its own patch embedding,
+# variables are aggregated via cross-attention, then ViT blocks process the
+# aggregated tokens, then time aggregation collapses the seq_len=12 history.
+#
+# Default hyperparams here = "ClimaX-S/5 shrunk" (smaller than the original
+# ClimaX-S/2 because paleoclimate data is limited). At embed_dim=256, depth=4,
+# patch_size=5 → ~3M params, manageable for our limited training budget.
+# Upsize embed_dim → 512 or 1024 for the full ClimaX paper config.
+#
+# Trained FROM SCRATCH (no pretrained ERA5/CMIP6 weights; the upstream
+# pretrained checkpoint targets entirely different variables).
+model_name:   climax_full_split
+model_class:  iso_unet.baseline_climax.ClimaXBaseline
+dataset_kind: sequence
+input_set:    full_split          # 9 ch (tas, precl, precc, PS, TMQ, QFLX, FLUT, LANDFRAC, aice)
+seq_len:      12
+batch_size:   4                   # ViT memory: 9 vars × 12 frames × 648 patches per token batch is heavy
+lr:           1.0e-3      # ★ previously 3.0e-4 ran for 74 epoch, try increasing
+max_epochs:   1000
+patience:     30      # ★ ClimaX uses longer patience (Transformer converges slowly)
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  out_channels:         1
+  H:                    90
+  W:                    180
+  seq_len:              12
+  patch_size:           5         # 90/5=18, 180/5=36 → 648 patches/var/frame
+  embed_dim:            256
+  depth:                4         # ViT block count
+  decoder_depth:        2
+  num_heads:            8
+  mlp_ratio:            4.0
+  drop_path:            0.1
+  drop_rate:            0.1

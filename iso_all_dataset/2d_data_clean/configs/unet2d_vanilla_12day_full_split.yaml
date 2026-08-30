@@ -1,0 +1,31 @@
+# Vanilla UNet — 12-day "naive embedding" experiment (counterpart to iso_unet_12day)
+#
+# Key differences from unet2d_vanilla_full_split:
+#     unet2d_vanilla (baseline) : last-frame only, 9 ch input → UNet
+#     unet2d_vanilla_12day (this): 12 frames concatenated along channel dim (12*9=108 ch) → UNet
+#
+# Compared to iso_unet_12day:
+#     iso_unet_12day  : 108 ch → DisentangledStem + 4-level UNet backbone + MoE + FiLM
+#     vanilla_12day   : 108 ch → pure 4-level UNet, no MoE/FiLM/attention
+#                       → tests the pure backbone's ability to handle 12-frame concatenation
+#
+# Input dim change: in_channels from 9 → 108 → UNet first-layer Conv param count grows 12x
+# but other layers unchanged → overall param count grows slightly (mostly conv1)
+model_name:   unet2d_vanilla_12day_full_split
+model_class:  iso_unet.baseline_unet2d_vanilla.UNet2DVanillaBaseline
+dataset_kind: sequence            # ★ differs from baseline — needs 12-frame window
+input_set:    full_split          # 9 ch
+seq_len:      12
+batch_size:   8
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  base_channels:    64
+  H:                90
+  W:                180
+  input_mode:       concat_all     # ★ key switch
+  T:                12             # must match seq_len

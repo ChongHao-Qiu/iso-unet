@@ -1,0 +1,30 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+build/
+dist/
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# Run outputs (created by train.py / eval.py)
+logs/
+lightning_logs/
+experiments*/
+*.ckpt
+*.pt
+
+# Data
+data/
+*.nc
+
+# Editors / OS
+.ipynb_checkpoints/
+.DS_Store
+.idea/
+.vscode/

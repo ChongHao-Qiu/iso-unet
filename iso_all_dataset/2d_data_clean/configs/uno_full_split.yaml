@@ -1,0 +1,28 @@
+# U-NO (Rahman et al. 2022, https://arxiv.org/abs/2204.11127) + full_split
+# U-shaped Fourier neural operator (UNO_9 architecture from Darcy):
+#   Lift (Linear C+2→w/2→w) → 5 OperatorBlock pyramid (w → 2w → 4w → 4w → 2w → w)
+#   → Project (Linear 2w→w→out)
+# Each OperatorBlock = SpectralConv (FFT-based) + Pointwise Conv1x1 → InstanceNorm? → GELU.
+# Pad 90×180 → 92×184 (multiple of 4, clean /4 halving), default modes [(18,18),(8,8),(8,8),(8,8),(18,18)].
+# Params ~8.2M (width=32) — same order as the original paper's Darcy setup. Lighter than vanilla UNet.
+# Feature: built-in resolution-invariance, can zero-shot switch grid size.
+model_name:   uno_full_split
+model_class:  iso_unet.baseline_uno.UNOBaseline
+dataset_kind: single_frame
+input_set:    full_split        # 9 ch
+seq_len:      12
+batch_size:   8
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  out_channels: 1
+  H:            90
+  W:            180
+  width:        32
+  factor:       1
+  # pad_h, pad_w: null → auto-computed to next-multiple-of-4 (= 2, 4)
+  # modes: null → uses default [(18,18),(8,8),(8,8),(8,8),(18,18)]

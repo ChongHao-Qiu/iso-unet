@@ -1,0 +1,23 @@
+# Attention U-Net (Oktay et al. 2018) + full_split
+# 5-level UNet (4 pool) + attention gate on every skip connection.
+# Architecture-matched to vanilla UNet (base=64, filters=[64,128,256,512,1024]) —
+#   attention gate adds ~5M params (~35M vs vanilla ~30M).
+# When using --save_attn, 4 spatial attention maps are retrieved from forward_with_attn.
+model_name:   attunet_full_split
+model_class:  iso_unet.baseline_attunet.AttentionUNetBaseline
+dataset_kind: single_frame
+input_set:    full_split        # 9 ch
+seq_len:      12
+batch_size:   8
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  base_channels: 64
+  out_channels:  1
+  H:             90
+  W:             180
+  max_channels:  1024

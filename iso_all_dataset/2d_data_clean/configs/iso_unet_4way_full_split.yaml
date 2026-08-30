@@ -1,0 +1,50 @@
+# Regional UNet — 4-way product routing (land/ocean) × (wet/dry)
+#
+# Comparison vs iso_unet_precip_full_split (additive 2+2 expert):
+#     precip_full_split (additive): MoE_landocean(b) + MoE_wetdry(b), two paths independently weighted → 2+2 expert
+#     4way (this config):           4 expert {LW, LD, OW, OD}, outer-product routing
+#         w_LW = lf · pr     (land+wet : tropical rainforest, monsoon land)
+#         w_LD = lf · (1-pr) (land+dry : desert, arid continents)
+#         w_OW = (1-lf) · pr (ocean+wet: ITCZ, storm tracks)
+#         w_OD = (1-lf)(1-pr)(ocean+dry: subtropical ocean subsidence, trade-wind belts)
+#
+# Expectation: the 4 regimes have large physical differences (d18Op differs significantly
+#              between desert vs rainforest vs ITCZ vs subtropical high)
+#       → independent experts can learn regime-specific transformations, outperforming additive
+# Risk: land-dry / ocean-dry pixels are relatively scarce (especially in the tropics), experts may be under-trained
+#
+# Bottleneck uses Regional4WayMoE; Skip attention (e3, e4) uses Region4WayExpertAttention.
+# Both rely on the same (landfrac, pr_mask) → outer-product weight routing.
+model_name:   iso_unet_4way_full_split
+model_class:  iso_unet.baseline_iso_unet.IsoUNetBaseline
+dataset_kind: sequence
+input_set:    full_split          # 9 ch: [tas, precl, precc, PS, TMQ, QFLX, FLUT, LANDFRAC, aice]
+seq_len:      12
+batch_size:   4                   # 4-expert slightly heavier than 2+2 — watch GPU memory
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  landfrac_idx:           7       # train.py auto-detects
+  base_channels:          64
+  d_state:                64
+  H:                      90
+  W:                      180
+  stem_k:                 4
+  use_disentangled_stem:  true
+  use_temporal_context:   true
+  use_bottleneck_moe:     true
+  use_skip_attn:          true
+  skip_attn_levels:       [3, 4]
+  # ── 4-way product routing switch ──
+  use_precip_routing:     true    # required (Regional4WayMoE needs pr_mask)
+  # pr_channels:          [1, 2]  # train.py auto-detects (precl + precc)
+  moe_mode:               product4
+  # ── Prompt loss ──
+  lambda_prompt:          0.1
+  lambda_prompt_final:    0.0
+  lambda_decay_epochs:    50
+  prompt_tau:             0.5

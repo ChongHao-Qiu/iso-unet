@@ -1,0 +1,17 @@
+# FNO2D + full_split (9 ch with pr split)
+model_name:   fno2d_full_split
+model_class:  iso_unet.model.FNO2d
+dataset_kind: single_frame
+input_set:    full_split
+seq_len:      12
+batch_size:   16
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  modes1:  8
+  modes2:  8
+  width:   16

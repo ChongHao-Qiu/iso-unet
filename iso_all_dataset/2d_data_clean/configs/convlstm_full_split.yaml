@@ -1,0 +1,24 @@
+# ConvLSTM sequence baseline + full_split.
+# Lightweight recurrent baseline — encoder downsamples 4×, ConvLSTM at
+# H/4 × W/4 resolution, ConvTranspose decoder back to H × W.
+# Output: seq-to-seq (B, 12, 1, H, W); eval pipeline takes y[:, -1].
+model_name:   convlstm_full_split
+model_class:  iso_unet.baseline_convlstm.ConvLSTMBaseline
+dataset_kind: sequence
+input_set:    full_split          # 9 ch
+seq_len:      12
+batch_size:   8
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  out_channels:    1
+  H:               90
+  W:               180
+  seq_len:         12
+  hidden_channels: 16
+  lstm_channels:   16
+  kernel_size:     3

@@ -1,0 +1,37 @@
+# Regional UNet — 4-way + ice + hard input mask
+# Difference from iso_unet_4way_ice_full_split: adds mask_mode=hard
+# - 4 4-way experts (LW/LD/OW/OD) apply hard binary land/ocean mask at the input
+# - ice expert applies hard binary mask at the input by aice
+# - wet/dry is not applied as an input mask, only distinguished via the output routing weight
+model_name:   iso_unet_4way_ice_full_split
+model_class:  iso_unet.baseline_iso_unet.IsoUNetBaseline
+dataset_kind: sequence
+input_set:    full_split
+seq_len:      12
+batch_size:   4
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  landfrac_idx:           7
+  base_channels:          64
+  d_state:                64
+  H:                      90
+  W:                      180
+  stem_k:                 4
+  use_disentangled_stem:  true
+  use_temporal_context:   true
+  use_bottleneck_moe:     true
+  use_skip_attn:          true
+  skip_attn_levels:       [1, 2, 3, 4]
+  use_precip_routing:     true
+  moe_mode:               product4
+  use_ice_routing:        true
+  mask_mode:              hard       # ★ add this line
+  lambda_prompt:          0.1
+  lambda_prompt_final:    0.0
+  lambda_decay_epochs:    50
+  prompt_tau:             0.5

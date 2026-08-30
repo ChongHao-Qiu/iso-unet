@@ -1,0 +1,40 @@
+# Runtime dependencies for ISO-UNet (Python >= 3.10).
+#
+# PyTorch: the pinned version below is the CPU/default-index build. To reproduce
+# the paper exactly (CUDA 11.8), install torch first with:
+#
+#     pip install torch==2.3.1 torchvision==0.18.1 \
+#         --index-url https://download.pytorch.org/whl/cu118
+#
+# then `pip install -r requirements.txt`.
+#
+# Versions are pinned to the environment the paper's results were produced in.
+
+# ── Core ──────────────────────────────────────────────────────────────────
+numpy==2.2.6
+torch==2.3.1
+torchmetrics==1.9.0
+lightning==2.6.1
+scikit-learn==1.7.2
+PyYAML==6.0.3
+tqdm==4.67.3
+colorama==0.4.6
+
+# ── Climate data I/O ──────────────────────────────────────────────────────
+xarray==2025.6.1
+netCDF4==1.7.4
+h5netcdf==1.8.1
+cftime==1.6.5
+dask==2026.3.0
+x4c==2026.3.21
+
+# ── Plotting / analysis ───────────────────────────────────────────────────
+pandas==2.3.3
+matplotlib==3.10.8
+Cartopy==0.25.0
+cmaps==2.0.1
+
+# ── Optional ──────────────────────────────────────────────────────────────
+# Only needed for the SegFormer baseline (configs/segformer_full_split.yaml);
+# every other model runs without it.
+transformers>=4.30

@@ -1,0 +1,29 @@
+# EarthFormer Cuboid Transformer — Video-Swin Attention baseline + full_split.
+# Inherits the upstream YAML hyperparams (matches cfg_video_swin_12to12.yaml).
+# Output: seq-to-seq (B, 12, 1, H, W); eval pipeline takes y[:, -1].
+model_name:   video_swin_full_split
+model_class:  iso_unet.baseline_video_swin.VideoSwinBaseline
+dataset_kind: sequence
+input_set:    full_split
+seq_len:      12
+batch_size:   4
+lr:           3.0e-4
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  out_channels: 1
+  H:            90
+  W:            180
+  seq_len:      12
+  base_units:               64
+  enc_depth:                [2, 2]
+  dec_depth:                [2, 2]
+  downsample:               5
+  num_heads:                2
+  attn_drop:                0.1
+  proj_drop:                0.1
+  ffn_drop:                 0.1
+  initial_downsample_scale: 6

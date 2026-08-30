@@ -1,0 +1,32 @@
+# TransUNet (Chen et al. 2021) + full_split
+# R50-ViT-B/16 paper canonical: R50 hybrid stem + ViT-B encoder (12 layers,
+# hidden=768, heads=12, mlp=3072) + 4-step UNet decoder cup with skip from R50.
+# Patch grid 6×12 = 72 patches (96×192 padded input / 16).
+# Params ~105M — an order of magnitude larger than other baselines; batch_size lowered to 4, lr also reduced.
+# Note: trained from scratch, no ImageNet-21k pretrained weights (the original paper's ViT-B was pretrained).
+model_name:   transunet_full_split
+model_class:  iso_unet.baseline_transunet.TransUNetBaseline
+dataset_kind: single_frame
+input_set:    full_split        # 9 ch
+seq_len:      12
+batch_size:   4
+lr:           3.0e-4
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  out_channels:        1
+  H:                   90
+  W:                   180
+  hidden_size:         768
+  num_heads:           12
+  num_layers:          12
+  mlp_dim:             3072
+  dropout:             0.1
+  attn_dropout:        0.0
+  resnet_block_units:  [3, 4, 9]
+  resnet_width_factor: 1
+  decoder_channels:    [256, 128, 64, 16]
+  n_skip:              3

@@ -1,0 +1,18 @@
+# UNet2D Vanilla + full_split — 4-level, base=64, architecture-matched to iso_unet
+model_name:   unet2d_vanilla_full_split
+model_class:  iso_unet.baseline_unet2d_vanilla.UNet2DVanillaBaseline
+dataset_kind: single_frame
+input_set:    full_split        # 9 ch
+seq_len:      12
+batch_size:   8
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  base_channels: 64
+  out_channels:  1
+  H:             90
+  W:             180

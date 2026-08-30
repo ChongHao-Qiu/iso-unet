@@ -1,0 +1,37 @@
+# Stormer (Nguyen et al. 2023, https://arxiv.org/abs/2312.03876) + full_split.
+# Variable-tokenized ViT with adaLN time-interval conditioning (DiT-style).
+# Upstream Stormer is a single-step weather forecaster; we adapt it to
+# paleoclimate δ¹⁸O_p regression by:
+#   1) aggregating the 12-frame input sequence into a single frame
+#      (`time_aggregation: last`)
+#   2) replacing the prediction head to emit 1 channel for d18Op
+#   3) passing time_interval = 0 (no forecast — we predict the same time)
+#
+# Default hyperparams = "Stormer-XS" (much smaller than the paper's Stormer-L).
+# Paper Stormer is hidden_size=1024 depth=24 (~250M params); we use 256/4
+# (~5M params) which is more appropriate for our limited training budget.
+#
+# Trained FROM SCRATCH (no pretrained ERA5 weights).
+model_name:   stormer_full_split
+model_class:  iso_unet.baseline_stormer.StormerBaseline
+dataset_kind: sequence
+input_set:    full_split          # 9 ch
+seq_len:      12
+batch_size:   4
+lr:           3.0e-4
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  out_channels:      1
+  H:                 90
+  W:                 180
+  seq_len:           12
+  patch_size:        5             # 90/5=18, 180/5=36 → 648 patches/variable
+  hidden_size:       256
+  depth:             4
+  num_heads:         8
+  mlp_ratio:         4.0
+  time_aggregation:  last          # take last frame; alt: 'mean'

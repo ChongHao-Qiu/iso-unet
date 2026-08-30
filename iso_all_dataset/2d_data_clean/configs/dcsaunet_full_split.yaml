@@ -1,0 +1,25 @@
+# DCSAU-Net (Xu et al. 2023) + full_split
+# PFC stem (7×7 + depthwise + pointwise) + 4-pool encoder/decoder, each block
+# is a ResNeSt-style Compound Split-Attention bottleneck (radix=2, cardinality=1,
+# bottleneck_width=64, avd=True). Channel plan paper-fixed:
+#   PFC=64 → 128 → 256 → 512 → 512 (bottleneck) → 256 → 128 → 64 → 64
+# Params ~2.6M (9ch input) — lighter than vanilla / unetpp / attunet,
+#   compute is mostly spent on split-attention rather than widening channels.
+model_name:   dcsaunet_full_split
+model_class:  iso_unet.baseline_dcsaunet.DCSAUNetBaseline
+dataset_kind: single_frame
+input_set:    full_split        # 9 ch
+seq_len:      12
+batch_size:   8
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  out_channels: 1
+  H:            90
+  W:            180
+  pfc_channels: 64
+  pfc_kernel:   7

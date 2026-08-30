@@ -1,0 +1,61 @@
+# Regional UNet — 4-way product routing + additive ice override
+#
+# Key differences from iso_unet_4way_full_split:
+#     4way (baseline):  4 experts (LW/LD/OW/OD), outer-product routing
+#     4way_ice (this):  4 experts + 1 ice expert (E_ice); ice pixels override the 4-way
+#
+# Bottleneck:
+#     routed_4way = w_LW·E_LW(b) + w_LD·E_LD(b) + w_OW·E_OW(b) + w_OD·E_OD(b)
+#     b_ice       = E_ice(b)
+#     merged      = (1 - aice) · routed_4way + aice · b_ice     # additive override
+#
+# Skip attention (e3, e4):
+#     merged_4way = Σ w_i · α_i (sigmoid attention)
+#     α_ice       = sigmoid(expert_ice(feat) + offset_ice)
+#     merged_attn = (1 - aice) · merged_4way + aice · α_ice
+#
+# Motivation:
+#     - sea ice is a small fraction (~10%, polar) but physically fundamentally different (no evaporation, advection-dominated)
+#     - heavily overlaps with ocean → should not add another outer-product axis (would create empty regimes); override is most natural
+#     - 4-way is unchanged, ice is an "add-on" → easy ablation, fully equivalent to use_ice_routing=False
+#
+# Expectations (based on current 4-way results):
+#     - polar (R01/R02 high-latitude) MSE should improve
+#     - OOD high-CO2 (840ppm) has almost no ice → ice expert is ineffective at OOD but should not hurt
+#     - overall: should be slightly better than pure 4-way on ID, on par or slightly worse on OOD (840 risk)
+model_name:   iso_unet_4way_ice_full_split
+model_class:  iso_unet.baseline_iso_unet.IsoUNetBaseline
+dataset_kind: sequence
+input_set:    full_split          # 9 ch: [tas, precl, precc, PS, TMQ, QFLX, FLUT, LANDFRAC, aice]
+seq_len:      12
+batch_size:   4                   # adding an ice expert uses ~25% more GPU memory than 4-way
+lr:           1.0e-3
+max_epochs:   1000
+patience:     10
+max_batch:    3000
+gradient_clip_val: 1.0
+
+model_kwargs:
+  landfrac_idx:           7       # train.py auto-detect (but always = 7 in full_split)
+  base_channels:          64
+  d_state:                64
+  H:                      90
+  W:                      180
+  stem_k:                 4
+  use_disentangled_stem:  true
+  use_temporal_context:   true
+  use_bottleneck_moe:     true
+  use_skip_attn:          true
+  skip_attn_levels:       [1, 2, 3, 4]   # attention added at all 4 levels
+  # ── 4-way product routing (must be on) ──
+  use_precip_routing:     true
+  # pr_channels:          [1, 2]  # train.py auto-detect (precl + precc)
+  moe_mode:               product4
+  # ── Ice override switch ──
+  use_ice_routing:        true
+  # ice_idx:              8       # train.py auto-detect (aice at idx 8 in full_split)
+  # ── Prompt loss ──
+  lambda_prompt:          0.1
+  lambda_prompt_final:    0.0
+  lambda_decay_epochs:    50
+  prompt_tau:             0.5
